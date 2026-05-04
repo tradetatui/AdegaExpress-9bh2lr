@@ -1,0 +1,62 @@
+# ===============================================
+# .htaccess — Roteamento SPA para Hostinger
+# Apache HTTP Server
+# ===============================================
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Não redireciona arquivos e pastas que existem
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Redireciona tudo para index.html (SPA routing)
+    RewriteRule ^ index.html [QSA,L]
+</IfModule>
+
+# -----------------------------------------------
+# Compressão gzip
+# -----------------------------------------------
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml
+    AddOutputFilterByType DEFLATE text/css text/javascript
+    AddOutputFilterByType DEFLATE application/javascript application/x-javascript
+    AddOutputFilterByType DEFLATE application/json application/xml
+    AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# -----------------------------------------------
+# Cache de assets estáticos
+# -----------------------------------------------
+<IfModule mod_expires.c>
+    ExpiresActive On
+
+    # HTML: sem cache (sempre verifica nova versão)
+    ExpiresByType text/html "access plus 0 seconds"
+
+    # CSS e JS: 1 ano (Vite gera hash nos nomes)
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+
+    # Imagens: 6 meses
+    ExpiresByType image/jpeg "access plus 6 months"
+    ExpiresByType image/png "access plus 6 months"
+    ExpiresByType image/gif "access plus 6 months"
+    ExpiresByType image/svg+xml "access plus 6 months"
+    ExpiresByType image/webp "access plus 6 months"
+
+    # Fontes: 1 ano
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+</IfModule>
+
+# -----------------------------------------------
+# Headers de segurança
+# -----------------------------------------------
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>

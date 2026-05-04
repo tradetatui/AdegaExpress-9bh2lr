@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 0.75rem;
+    --background: 0 0% 4%;
+    --foreground: 210 40% 98%;
+    --card: 0 0% 7%;
+    --card-foreground: 210 40% 98%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 152 100% 43%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 0 0% 11%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 0 0% 11%;
+    --muted-foreground: 215 16% 57%;
+    --accent: 45 96% 53%;
+    --accent-foreground: 0 0% 4%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 16%;
+    --input: 0 0% 16%;
+    --ring: 152 100% 43%;
+  }
+
+  * {
+    border-color: hsl(0 0% 16%);
+  }
+
+  body {
+    @apply bg-surface text-tx-primary antialiased;
+    font-family: "Inter", sans-serif;
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0a0a0a;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #2a2a2a;
+    border-radius: 2px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #00D97E;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-brand-green text-surface font-semibold px-5 py-2.5 rounded-xl
+           hover:bg-brand-green-dim transition-all duration-200
+           active:scale-95 focus:outline-none focus:ring-2 focus:ring-brand-green/40;
+  }
+  .btn-secondary {
+    @apply bg-surface-elevated text-tx-primary font-medium px-5 py-2.5 rounded-xl
+           border border-surface-border hover:border-brand-green/40 hover:bg-surface-elevated
+           transition-all duration-200 active:scale-95;
+  }
+  .btn-danger {
+    @apply bg-brand-red text-white font-semibold px-5 py-2.5 rounded-xl
+           hover:bg-brand-red-dim transition-all duration-200 active:scale-95;
+  }
+  .card {
+    @apply bg-surface-card border border-surface-border rounded-2xl;
+  }
+  .card-elevated {
+    @apply bg-surface-elevated border border-surface-border rounded-2xl;
+  }
+  .input-field {
+    @apply bg-surface-elevated border border-surface-border text-tx-primary
+           rounded-xl px-4 py-3 w-full placeholder:text-tx-muted
+           focus:outline-none focus:border-brand-green/60 focus:ring-1 focus:ring-brand-green/30
+           transition-all duration-200;
+  }
+  .tag {
+    @apply inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full;
+  }
+  .neon-text {
+    @apply text-brand-green;
+    text-shadow: 0 0 20px rgba(0, 217, 126, 0.4);
+  }
+  .neon-border {
+    box-shadow: 0 0 0 1px rgba(0, 217, 126, 0.3), 0 0 20px rgba(0, 217, 126, 0.1);
+  }
+  .glass-card {
+    background: rgba(17, 17, 17, 0.8);
+    backdrop-filter: blur(12px);
+    @apply border border-surface-border rounded-2xl;
+  }
+}
