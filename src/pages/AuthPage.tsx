@@ -18,9 +18,27 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
   const [userType, setUserType] = useState<"customer" | "delivery" | "store">("customer");
   const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", document: "", vehicle: "", businessHours: "" });
   const [error, setError] = useState("");
+  
+  // Estados para upload de documento
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploadPreview, setUploadPreview] = useState<string>("");
 
   const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
+
+  // Função para upload de arquivo
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setUploadedFile(file);
+      // Preview da imagem
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setUploadPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +65,16 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
       document: form.document,
       vehicle: form.vehicle,
       businessHours: form.businessHours,
+      documentFileName: uploadedFile ? uploadedFile.name : null,
+      documentPreview: uploadPreview || null,
     } as AuthUser;
+    
+    // Salvar documento no localStorage (versão demo)
+    if (uploadedFile) {
+      localStorage.setItem(`document_${form.email}`, uploadedFile.name);
+      localStorage.setItem(`document_preview_${form.email}`, uploadPreview);
+    }
+    
     onLogin(newUser);
     navigate("/");
   };
@@ -120,6 +147,18 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
                     <label className="text-sm text-tx-secondary block mb-1.5">Veículo</label>
                     <input type="text" value={form.vehicle} onChange={set("vehicle")} className="input-field" placeholder="Moto, bicicleta, etc." />
                   </div>
+                  <div>
+                    <label className="text-sm text-tx-secondary block mb-1.5">Upload da CNH (foto)</label>
+                    <input type="file" accept="image/*,application/pdf" onChange={handleFileUpload} className="input-field" />
+                    {uploadPreview && (
+                      <div className="mt-2">
+                        <img src={uploadPreview} alt="Preview da CNH" className="w-20 h-20 object-cover rounded border border-surface-border" />
+                      </div>
+                    )}
+                    {uploadedFile && (
+                      <p className="text-xs text-tx-muted mt-1">Arquivo: {uploadedFile.name}</p>
+                    )}
+                  </div>
                 </>
               )}
 
@@ -132,6 +171,18 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
                   <div>
                     <label className="text-sm text-tx-secondary block mb-1.5">Horário de funcionamento</label>
                     <input type="text" value={form.businessHours} onChange={set("businessHours")} className="input-field" placeholder="Seg-Sex: 10h-22h, Sáb: 12h-20h" />
+                  </div>
+                  <div>
+                    <label className="text-sm text-tx-secondary block mb-1.5">Comprovante de endereço / Alvará</label>
+                    <input type="file" accept="image/*,application/pdf" onChange={handleFileUpload} className="input-field" />
+                    {uploadPreview && (
+                      <div className="mt-2">
+                        <img src={uploadPreview} alt="Preview do documento" className="w-20 h-20 object-cover rounded border border-surface-border" />
+                      </div>
+                    )}
+                    {uploadedFile && (
+                      <p className="text-xs text-tx-muted mt-1">Arquivo: {uploadedFile.name}</p>
+                    )}
                   </div>
                 </>
               )}
