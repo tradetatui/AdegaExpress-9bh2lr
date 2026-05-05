@@ -28,8 +28,8 @@ RUN npm install -g serve
 # Copia o build gerado no estágio anterior
 COPY --from=builder /app/dist ./dist
 
-# Expõe a porta que o serve vai usar
-EXPOSE 5173
+# Expõe a porta 80 (padrão HTTP)
+EXPOSE 80
 
-# Comando para iniciar o servidor
-CMD ["serve", "-s", "dist", "-l", "5173"]
+# Comando para iniciar o servidor na porta 80
+CMD ["serve", "-s", "dist", "-l", "80"]
