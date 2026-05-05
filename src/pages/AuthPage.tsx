@@ -79,6 +79,20 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
     navigate("/");
   };
 
+  // Função para retornar o label do documento baseado no tipo
+  const getDocumentLabel = () => {
+    switch(userType) {
+      case "customer":
+        return "Documento de identidade (RG/CNH) para verificação de idade";
+      case "delivery":
+        return "CNH (obrigatório para entrega)";
+      case "store":
+        return "CNPJ e Alvará de funcionamento";
+      default:
+        return "Documento";
+    }
+  };
+
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
@@ -136,28 +150,39 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
                 <input type="tel" value={form.phone} onChange={set("phone")} className="input-field" placeholder="(11) 99999-9999" />
               </div>
 
+              {/* Upload de documento para TODOS os tipos */}
+              <div>
+                <label className="text-sm text-tx-secondary block mb-1.5">{getDocumentLabel()}</label>
+                <input 
+                  type="file" 
+                  accept="image/*,application/pdf" 
+                  onChange={handleFileUpload} 
+                  className="input-field" 
+                  required 
+                />
+                {uploadPreview && (
+                  <div className="mt-2">
+                    <img src={uploadPreview} alt="Preview do documento" className="w-20 h-20 object-cover rounded border border-surface-border" />
+                  </div>
+                )}
+                {uploadedFile && (
+                  <p className="text-xs text-tx-muted mt-1">Arquivo: {uploadedFile.name}</p>
+                )}
+                {userType === "customer" && (
+                  <p className="text-xs text-brand-yellow mt-1">⚠️ Documento obrigatório para verificação de maioridade</p>
+                )}
+              </div>
+
               {/* Campos específicos por tipo */}
               {userType === "delivery" && (
                 <>
                   <div>
-                    <label className="text-sm text-tx-secondary block mb-1.5">CNH / Documento</label>
+                    <label className="text-sm text-tx-secondary block mb-1.5">Número da CNH</label>
                     <input type="text" value={form.document} onChange={set("document")} className="input-field" placeholder="Número da CNH" />
                   </div>
                   <div>
                     <label className="text-sm text-tx-secondary block mb-1.5">Veículo</label>
                     <input type="text" value={form.vehicle} onChange={set("vehicle")} className="input-field" placeholder="Moto, bicicleta, etc." />
-                  </div>
-                  <div>
-                    <label className="text-sm text-tx-secondary block mb-1.5">Upload da CNH (foto)</label>
-                    <input type="file" accept="image/*,application/pdf" onChange={handleFileUpload} className="input-field" />
-                    {uploadPreview && (
-                      <div className="mt-2">
-                        <img src={uploadPreview} alt="Preview da CNH" className="w-20 h-20 object-cover rounded border border-surface-border" />
-                      </div>
-                    )}
-                    {uploadedFile && (
-                      <p className="text-xs text-tx-muted mt-1">Arquivo: {uploadedFile.name}</p>
-                    )}
                   </div>
                 </>
               )}
@@ -172,19 +197,15 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
                     <label className="text-sm text-tx-secondary block mb-1.5">Horário de funcionamento</label>
                     <input type="text" value={form.businessHours} onChange={set("businessHours")} className="input-field" placeholder="Seg-Sex: 10h-22h, Sáb: 12h-20h" />
                   </div>
-                  <div>
-                    <label className="text-sm text-tx-secondary block mb-1.5">Comprovante de endereço / Alvará</label>
-                    <input type="file" accept="image/*,application/pdf" onChange={handleFileUpload} className="input-field" />
-                    {uploadPreview && (
-                      <div className="mt-2">
-                        <img src={uploadPreview} alt="Preview do documento" className="w-20 h-20 object-cover rounded border border-surface-border" />
-                      </div>
-                    )}
-                    {uploadedFile && (
-                      <p className="text-xs text-tx-muted mt-1">Arquivo: {uploadedFile.name}</p>
-                    )}
-                  </div>
                 </>
+              )}
+
+              {/* Para cliente, apenas o documento já foi pedido acima */}
+              {userType === "customer" && (
+                <div className="bg-brand-green/10 border border-brand-green/30 rounded-lg p-3 text-xs text-tx-secondary">
+                  <p>📋 Verificação de idade:</p>
+                  <p className="mt-1">Enviamos seu documento para análise. Após aprovado, você poderá fazer pedidos.</p>
+                </div>
               )}
             </>
           )}
