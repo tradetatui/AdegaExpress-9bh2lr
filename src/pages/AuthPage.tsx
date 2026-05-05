@@ -15,11 +15,30 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
     params.get("tab") === "register" ? "register" : "login"
   );
   const [showPass, setShowPass] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "" });
+  const [userType, setUserType] = useState<"customer" | "delivery" | "store">("customer");
+  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", document: "", vehicle: "", businessHours: "" });
   const [error, setError] = useState("");
+  
+  // Estados para upload de documento
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploadPreview, setUploadPreview] = useState<string>("");
 
   const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
+
+  // Função para upload de arquivo
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setUploadedFile(file);
+      // Preview da imagem
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setUploadPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,16 +55,42 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
       return;
     }
 
-    // Register: create new customer
+    // Register: create new user based on type
     const newUser: AuthUser = {
-      id: `cust-${Date.now()}`,
+      id: `${userType}-${Date.now()}`,
       name: form.name,
       email: form.email,
-      role: "customer",
+      role: userType,
       phone: form.phone,
+      document: form.document,
+      vehicle: form.vehicle,
+      businessHours: form.businessHours,
+      documentFileName: uploadedFile ? uploadedFile.name : null,
+      documentPreview: uploadPreview || null,
     } as AuthUser;
+    
+    // Salvar documento no localStorage (versão demo)
+    if (uploadedFile) {
+      localStorage.setItem(`document_${form.email}`, uploadedFile.name);
+      localStorage.setItem(`document_preview_${form.email}`, uploadPreview);
+    }
+    
     onLogin(newUser);
     navigate("/");
+  };
+
+  // Função para retornar o label do documento baseado no tipo
+  const getDocumentLabel = () => {
+    switch(userType) {
+      case "customer":
+        return "Documento de identidade (RG/CNH) para verificação de idade";
+      case "delivery":
+        return "CNH (obrigatório para entrega)";
+      case "store":
+        return "CNPJ e Alvará de funcionamento";
+      default:
+        return "Documento";
+    }
   };
 
   return (
@@ -81,14 +126,87 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
         <form onSubmit={handleSubmit} className="card p-6 space-y-4">
           {tab === "register" && (
             <>
+              {/* Tipo de usuário */}
+              <div>
+                <label className="text-sm text-tx-secondary block mb-1.5">Você é:</label>
+                <select 
+                  value={userType} 
+                  onChange={(e) => setUserType(e.target.value as "customer" | "delivery" | "store")}
+                  className="input-field"
+                >
+                  <option value="customer">Cliente</option>
+                  <option value="delivery">Entregador / Motoboy</option>
+                  <option value="store">Adega (Estabelecimento)</option>
+                </select>
+              </div>
+
               <div>
                 <label className="text-sm text-tx-secondary block mb-1.5">Nome completo</label>
                 <input type="text" required value={form.name} onChange={set("name")} className="input-field" placeholder="Seu nome" />
               </div>
+
               <div>
                 <label className="text-sm text-tx-secondary block mb-1.5">Telefone</label>
                 <input type="tel" value={form.phone} onChange={set("phone")} className="input-field" placeholder="(11) 99999-9999" />
               </div>
+
+              {/* Upload de documento para TODOS os tipos */}
+              <div>
+                <label className="text-sm text-tx-secondary block mb-1.5">{getDocumentLabel()}</label>
+                <input 
+                  type="file" 
+                  accept="image/*,application/pdf" 
+                  onChange={handleFileUpload} 
+                  className="input-field" 
+                  required 
+                />
+                {uploadPreview && (
+                  <div className="mt-2">
+                    <img src={uploadPreview} alt="Preview do documento" className="w-20 h-20 object-cover rounded border border-surface-border" />
+                  </div>
+                )}
+                {uploadedFile && (
+                  <p className="text-xs text-tx-muted mt-1">Arquivo: {uploadedFile.name}</p>
+                )}
+                {userType === "customer" && (
+                  <p className="text-xs text-brand-yellow mt-1">⚠️ Documento obrigatório para verificação de maioridade</p>
+                )}
+              </div>
+
+              {/* Campos específicos por tipo */}
+              {userType === "delivery" && (
+                <>
+                  <div>
+                    <label className="text-sm text-tx-secondary block mb-1.5">Número da CNH</label>
+                    <input type="text" value={form.document} onChange={set("document")} className="input-field" placeholder="Número da CNH" />
+                  </div>
+                  <div>
+                    <label className="text-sm text-tx-secondary block mb-1.5">Veículo</label>
+                    <input type="text" value={form.vehicle} onChange={set("vehicle")} className="input-field" placeholder="Moto, bicicleta, etc." />
+                  </div>
+                </>
+              )}
+
+              {userType === "store" && (
+                <>
+                  <div>
+                    <label className="text-sm text-tx-secondary block mb-1.5">CNPJ</label>
+                    <input type="text" value={form.document} onChange={set("document")} className="input-field" placeholder="00.000.000/0001-00" />
+                  </div>
+                  <div>
+                    <label className="text-sm text-tx-secondary block mb-1.5">Horário de funcionamento</label>
+                    <input type="text" value={form.businessHours} onChange={set("businessHours")} className="input-field" placeholder="Seg-Sex: 10h-22h, Sáb: 12h-20h" />
+                  </div>
+                </>
+              )}
+
+              {/* Para cliente, apenas o documento já foi pedido acima */}
+              {userType === "customer" && (
+                <div className="bg-brand-green/10 border border-brand-green/30 rounded-lg p-3 text-xs text-tx-secondary">
+                  <p>📋 Verificação de idade:</p>
+                  <p className="mt-1">Enviamos seu documento para análise. Após aprovado, você poderá fazer pedidos.</p>
+                </div>
+              )}
             </>
           )}
 

@@ -23,7 +23,7 @@ export const MOCK_STORES: Store[] = [
     isOpen: true,
     openingHours: "10:00",
     closingHours: "02:00",
-    categories: ["cerveja", "whisky", "energetico", "gelo", "combo"],
+    categories: ["cerveja", "whisky", "energetico", "gelo", "combo", "carvao"],
     featured: true,
     phone: "(11) 99999-0001",
   },
@@ -46,7 +46,7 @@ export const MOCK_STORES: Store[] = [
     isOpen: true,
     openingHours: "12:00",
     closingHours: "00:00",
-    categories: ["cerveja", "vodka", "energetico", "gelo"],
+    categories: ["cerveja", "vodka", "energetico", "gelo", "carvao"],
     featured: true,
     phone: "(11) 99999-0002",
   },
@@ -92,7 +92,7 @@ export const MOCK_STORES: Store[] = [
     isOpen: true,
     openingHours: "00:00",
     closingHours: "23:59",
-    categories: ["energetico", "refrigerante", "vodka", "gelo"],
+    categories: ["energetico", "refrigerante", "vodka", "gelo", "carvao"],
     featured: false,
     phone: "(11) 99999-0004",
   },
@@ -134,6 +134,8 @@ export const MOCK_PRODUCTS: Product[] = [
   { id: "p6", storeId: "store-1", name: "Brahma Duplo Malte 473ml", description: "Cerveja premium com duplo processo de malte.", price: 9.90, image: "https://images.unsplash.com/photo-1535958636474-b021ee887b13?w=400&h=400&fit=crop", category: "cerveja", stock: 60, featured: false, available: true, volume: "473ml", alcoholContent: "5%" },
   { id: "p7", storeId: "store-1", name: "Combo Festa (24 cervejas + gelo)", description: "24 latas Heineken + 2kg de gelo. Perfeito para a galera!", price: 169.90, originalPrice: 200.00, image: "https://images.unsplash.com/photo-1436076863939-06870fe779c2?w=400&h=400&fit=crop", category: "combo", stock: 10, featured: true, available: true },
   { id: "p8", storeId: "store-1", name: "Stella Artois Long Neck 330ml", description: "A cerveja premium belga que conquistou o mundo.", price: 10.90, image: "https://images.unsplash.com/photo-1608270586620-248524c67de9?w=400&h=400&fit=crop&random=2", category: "cerveja", stock: 40, featured: false, available: true, volume: "330ml" },
+  // Produtos de Carvão - Adega Ouro Negro
+  { id: "p21", storeId: "store-1", name: "Carvão Qualitá 5kg", description: "Carvão vegetal de alta duração para churrasco.", price: 29.90, image: "https://images.unsplash.com/photo-1559720276-0ce0ada95c8a?w=400&h=400&fit=crop", category: "carvao", stock: 30, featured: true, available: true, volume: "5kg" },
 
   // Barrilhões & Cia (store-2)
   { id: "p9", storeId: "store-2", name: "Colorado Appia 600ml", description: "Cerveja artesanal brasileira de malte especial.", price: 22.90, image: "https://images.unsplash.com/photo-1571167366136-b57e098cc3ee?w=400&h=400&fit=crop", category: "cerveja", stock: 25, featured: true, available: true, volume: "600ml" },
@@ -141,6 +143,8 @@ export const MOCK_PRODUCTS: Product[] = [
   { id: "p11", storeId: "store-2", name: "Monster Energy 473ml", description: "O energético mais poderoso. Unleash the beast!", price: 14.90, image: "https://images.unsplash.com/photo-1546873994-b3b5a0f97e5c?w=400&h=400&fit=crop", category: "energetico", stock: 55, featured: false, available: true, volume: "473ml" },
   { id: "p12", storeId: "store-2", name: "Gelo em Barra 5kg", description: "Barra de gelo para manter tudo gelado na sua festa.", price: 19.90, image: "https://images.unsplash.com/photo-1612528443702-f6741f70a049?w=400&h=400&fit=crop&random=2", category: "gelo", stock: 20, featured: false, available: true, volume: "5kg" },
   { id: "p13", storeId: "store-2", name: "Skol Beats Spirit 269ml", description: "Drink pronto com sabor cítrico refrescante.", price: 13.90, image: "https://images.unsplash.com/photo-1527281400683-1aae777175f8?w=400&h=400&fit=crop", category: "vodka", stock: 35, featured: false, available: true, volume: "269ml" },
+  // Produto de Carvão - Barrilhões
+  { id: "p22", storeId: "store-2", name: "Carvão Premium 10kg", description: "Carvão de qualidade premium, ideal para churrascos.", price: 49.90, image: "https://images.unsplash.com/photo-1559720276-0ce0ada95c8a?w=400&h=400&fit=crop&random=2", category: "carvao", stock: 15, featured: false, available: true, volume: "10kg" },
 
   // Whisky House Premium (store-3)
   { id: "p14", storeId: "store-3", name: "Johnnie Walker Black 750ml", description: "Blended Scotch Whisky de 12 anos. Sofisticado e equilibrado.", price: 189.90, image: "https://images.unsplash.com/photo-1569529465841-dfecdab7503b?w=400&h=400&fit=crop&random=2", category: "whisky", stock: 12, featured: true, available: true, volume: "750ml", alcoholContent: "40%" },
@@ -214,6 +218,7 @@ export const CATEGORIES = [
   { id: "refrigerante", label: "Refrigerante", emoji: "🥤" },
   { id: "espumante", label: "Espumante", emoji: "🥂" },
   { id: "gin", label: "Gin", emoji: "🌿" },
+  { id: "carvao", label: "Carvão", emoji: "🪨" },
 ];
 
 export const ORDER_STATUS_LABELS: Record<string, string> = {
