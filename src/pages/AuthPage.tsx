@@ -15,7 +15,8 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
     params.get("tab") === "register" ? "register" : "login"
   );
   const [showPass, setShowPass] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "" });
+  const [userType, setUserType] = useState<"customer" | "delivery" | "store">("customer");
+  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", document: "", vehicle: "", businessHours: "" });
   const [error, setError] = useState("");
 
   const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -36,13 +37,16 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
       return;
     }
 
-    // Register: create new customer
+    // Register: create new user based on type
     const newUser: AuthUser = {
-      id: `cust-${Date.now()}`,
+      id: `${userType}-${Date.now()}`,
       name: form.name,
       email: form.email,
-      role: "customer",
+      role: userType,
       phone: form.phone,
+      document: form.document,
+      vehicle: form.vehicle,
+      businessHours: form.businessHours,
     } as AuthUser;
     onLogin(newUser);
     navigate("/");
@@ -81,14 +85,56 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
         <form onSubmit={handleSubmit} className="card p-6 space-y-4">
           {tab === "register" && (
             <>
+              {/* Tipo de usuário */}
+              <div>
+                <label className="text-sm text-tx-secondary block mb-1.5">Você é:</label>
+                <select 
+                  value={userType} 
+                  onChange={(e) => setUserType(e.target.value as "customer" | "delivery" | "store")}
+                  className="input-field"
+                >
+                  <option value="customer">Cliente</option>
+                  <option value="delivery">Entregador / Motoboy</option>
+                  <option value="store">Adega (Estabelecimento)</option>
+                </select>
+              </div>
+
               <div>
                 <label className="text-sm text-tx-secondary block mb-1.5">Nome completo</label>
                 <input type="text" required value={form.name} onChange={set("name")} className="input-field" placeholder="Seu nome" />
               </div>
+
               <div>
                 <label className="text-sm text-tx-secondary block mb-1.5">Telefone</label>
                 <input type="tel" value={form.phone} onChange={set("phone")} className="input-field" placeholder="(11) 99999-9999" />
               </div>
+
+              {/* Campos específicos por tipo */}
+              {userType === "delivery" && (
+                <>
+                  <div>
+                    <label className="text-sm text-tx-secondary block mb-1.5">CNH / Documento</label>
+                    <input type="text" value={form.document} onChange={set("document")} className="input-field" placeholder="Número da CNH" />
+                  </div>
+                  <div>
+                    <label className="text-sm text-tx-secondary block mb-1.5">Veículo</label>
+                    <input type="text" value={form.vehicle} onChange={set("vehicle")} className="input-field" placeholder="Moto, bicicleta, etc." />
+                  </div>
+                </>
+              )}
+
+              {userType === "store" && (
+                <>
+                  <div>
+                    <label className="text-sm text-tx-secondary block mb-1.5">CNPJ</label>
+                    <input type="text" value={form.document} onChange={set("document")} className="input-field" placeholder="00.000.000/0001-00" />
+                  </div>
+                  <div>
+                    <label className="text-sm text-tx-secondary block mb-1.5">Horário de funcionamento</label>
+                    <input type="text" value={form.businessHours} onChange={set("businessHours")} className="input-field" placeholder="Seg-Sex: 10h-22h, Sáb: 12h-20h" />
+                  </div>
+                </>
+              )}
             </>
           )}
 
