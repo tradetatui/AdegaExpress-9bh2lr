@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  mysql-bebeuja:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: Dellys79800@
+      MYSQL_DATABASE: jabebeu
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: always
+
+  api:
+    build: ./api
+    environment:
+      PORT: 3000
+      DB_HOST: mysql-bebeuja
+      DB_USER: root
+      DB_PASS: sua_senha_aqui
+      DB_NAME: jabebeu
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql-bebeuja
+    restart: always
+
+  site:
+    build: .
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    restart: always
+
+volumes:
+  mysql_data:
