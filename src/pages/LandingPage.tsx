@@ -1,7 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Search, Zap, Shield, Star } from "lucide-react";
 import StoreCard from "@/components/features/StoreCard";
-import { MOCK_STORES, CATEGORIES } from "@/constants/mockData";
+import { CATEGORIES } from "@/constants/mockData";
 import heroBanner from "@/assets/hero-banner.jpg";
 import catBeer from "@/assets/category-beer.jpg";
 import catWhisky from "@/assets/category-whisky.jpg";
@@ -15,27 +15,70 @@ const CATEGORY_IMAGES: Record<string, string> = {
 
 export default function LandingPage() {
   const [search, setSearch] = useState("");
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState(null);
+  const [stores, setStores] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/stores')
+      .then(res => res.json())
+      .then(data => {
+        const mappedStores = data.map(store => ({
+          id: store.id,
+          storeName: store.store_name,
+          description: store.description,
+          phone: store.phone,
+          email: store.email,
+          city: store.city,
+          address: store.address,
+          coverImage: store.cover_image || "https://placehold.co/400x200?text=Loja",
+          logo: store.logo || "https://placehold.co/100x100?text=Logo",
+          categories: store.categories ? store.categories.split(',') : [],
+          isOpen: store.is_open === 1,
+          deliveryFee: parseFloat(store.delivery_fee),
+          minimumOrder: parseFloat(store.minimum_order),
+          rating: parseFloat(store.rating),
+          reviewCount: store.review_count,
+          deliveryTime: "30-40 min",
+          neighborhood: store.city,
+          featured: false
+        }));
+        setStores(mappedStores);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Erro:', err);
+        setLoading(false);
+      });
+  }, []);
 
   const filtered = useMemo(() => {
-    let stores = MOCK_STORES;
+    let filteredStores = stores;
     if (activeCategory) {
-      stores = stores.filter((s) => s.categories.includes(activeCategory));
+      filteredStores = filteredStores.filter(s => s.categories.includes(activeCategory));
     }
     if (search.trim()) {
       const q = search.toLowerCase();
-      stores = stores.filter(
-        (s) => s.storeName.toLowerCase().includes(q) || s.neighborhood.toLowerCase().includes(q)
+      filteredStores = filteredStores.filter(s =>
+        s.storeName.toLowerCase().includes(q) || s.city.toLowerCase().includes(q)
       );
     }
-    return stores;
-  }, [search, activeCategory]);
+    return filteredStores;
+  }, [search, activeCategory, stores]);
 
-  const featured = MOCK_STORES.filter((s) => s.featured);
+  if (loading) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-brand-green border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-tx-secondary">Carregando adegas...</p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen">
-      {/* Hero */}
       <section className="relative h-72 md:h-96 overflow-hidden">
         <img src={heroBanner} alt="BebeuJá" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-surface/95 via-surface/70 to-transparent" />
@@ -51,8 +94,6 @@ export default function LandingPage() {
             <p className="text-tx-secondary mt-3 md:text-lg">
               As melhores adegas da cidade com entrega rápida.
             </p>
-
-            {/* Search bar */}
             <div className="relative mt-6 max-w-md">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-tx-muted" />
               <input
@@ -68,7 +109,6 @@ export default function LandingPage() {
       </section>
 
       <div className="max-w-7xl mx-auto px-4 pb-16">
-        {/* Stats bar */}
         <div className="grid grid-cols-3 gap-4 py-6 border-b border-surface-border">
           {[
             { icon: <Zap className="w-5 h-5 text-brand-green" />, label: "Entrega Rápida", sub: "Em até 40min" },
@@ -83,16 +123,12 @@ export default function LandingPage() {
           ))}
         </div>
 
-        {/* Categories */}
         <section className="py-6">
           <h2 className="font-display font-bold text-lg mb-4">Categorias</h2>
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             <button
               onClick={() => setActiveCategory(null)}
-              className={`shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border transition-all
-                ${!activeCategory
-                  ? "bg-brand-green text-surface border-brand-green"
-                  : "bg-surface-elevated text-tx-secondary border-surface-border hover:border-brand-green/40"}`}
+              className={`px-4 py-2 rounded-xl text-sm font-medium border transition-all ${!activeCategory ? "bg-brand-green text-white" : "bg-gray-100"}`}
             >
               🍾 Todos
             </button>
@@ -100,10 +136,7 @@ export default function LandingPage() {
               <button
                 key={cat.id}
                 onClick={() => setActiveCategory(activeCategory === cat.id ? null : cat.id)}
-                className={`shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border transition-all
-                  ${activeCategory === cat.id
-                    ? "bg-brand-green text-surface border-brand-green"
-                    : "bg-surface-elevated text-tx-secondary border-surface-border hover:border-brand-green/40"}`}
+                className={`px-4 py-2 rounded-xl text-sm font-medium border transition-all ${activeCategory === cat.id ? "bg-brand-green text-white" : "bg-gray-100"}`}
               >
                 {cat.emoji} {cat.label}
               </button>
@@ -111,56 +144,13 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Featured category cards */}
-        {!activeCategory && !search && (
-          <section className="mb-8">
-            <h2 className="font-display font-bold text-lg mb-4">Mais Pedidos</h2>
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { key: "cerveja", label: "Cervejas", img: catBeer },
-                { key: "whisky", label: "Whiskys", img: catWhisky },
-                { key: "energetico", label: "Energéticos", img: catEnergy },
-              ].map((item) => (
-                <button
-                  key={item.key}
-                  onClick={() => setActiveCategory(item.key)}
-                  className="relative h-28 rounded-2xl overflow-hidden group"
-                >
-                  <img src={item.img} alt={item.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-surface/80 to-transparent" />
-                  <span className="absolute bottom-2 left-0 right-0 text-center text-sm font-semibold text-tx-primary">
-                    {item.label}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Stores */}
         <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display font-bold text-lg">
-              {activeCategory
-                ? `Adegas com ${CATEGORIES.find((c) => c.id === activeCategory)?.label}`
-                : search ? "Resultados" : "Adegas Próximas"}
-            </h2>
-            <span className="text-sm text-tx-muted">{filtered.length} encontradas</span>
+          <h2 className="text-lg font-bold mb-4">Adegas Próximas</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filtered.map((store) => (
+              <StoreCard key={store.id} store={store} />
+            ))}
           </div>
-
-          {filtered.length === 0 ? (
-            <div className="text-center py-16">
-              <p className="text-4xl mb-4">🔍</p>
-              <p className="font-semibold text-tx-secondary">Nenhuma adega encontrada</p>
-              <p className="text-sm text-tx-muted mt-1">Tente outro bairro ou categoria</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filtered.map((store) => (
-                <StoreCard key={store.id} store={store} />
-              ))}
-            </div>
-          )}
         </section>
       </div>
     </main>
