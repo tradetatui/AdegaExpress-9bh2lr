@@ -12,6 +12,7 @@ import MyOrdersPage from "@/pages/MyOrdersPage";
 import AuthPage from "@/pages/AuthPage";
 import StoreDashboard from "@/pages/StoreDashboard";
 import DriverPanel from "@/pages/DriverPanel";
+import AdminDashboard from "@/pages/AdminDashboard";
 import NotFound from "@/pages/NotFound";
 
 // =====================
@@ -57,7 +58,7 @@ function AppContent({ user, login, logout, cart }: {
   cart: ReturnType<typeof useCart>;
 }) {
   const { pathname } = window.location;
-  const showHeader = !pathname.startsWith("/adega") && !pathname.startsWith("/entregador");
+  const showHeader = !pathname.startsWith("/adega") && !pathname.startsWith("/entregador") && !pathname.startsWith("/admin");
 
   return (
     <>
@@ -83,6 +84,14 @@ function AppContent({ user, login, logout, cart }: {
           path="/entregador"
           element={
             <DriverPanel user={user} onLogin={login} onLogout={logout} />
+          }
+        />
+
+        {/* Admin Dashboard */}
+        <Route
+          path="/admin"
+          element={
+            <AdminDashboard user={user} onLogin={login} onLogout={logout} />
           }
         />
 

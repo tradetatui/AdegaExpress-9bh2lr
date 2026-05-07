@@ -18,24 +18,19 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
   const [userType, setUserType] = useState<"customer" | "delivery" | "store">("customer");
   const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", document: "", vehicle: "", businessHours: "" });
   const [error, setError] = useState("");
-  
-  // Estados para upload de documento
+
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [uploadPreview, setUploadPreview] = useState<string>("");
 
   const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
 
-  // Função para upload de arquivo
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setUploadedFile(file);
-      // Preview da imagem
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setUploadPreview(reader.result as string);
-      };
+      reader.onloadend = () => setUploadPreview(reader.result as string);
       reader.readAsDataURL(file);
     }
   };
@@ -45,18 +40,48 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
     setError("");
 
     if (tab === "login") {
-      // Demo login check
+      // Verificar usuários registrados no localStorage
+      const storedUsers: any[] = JSON.parse(localStorage.getItem("bebeuja_registered_users") || "[]");
+      const found = storedUsers.find(u => u.email === form.email);
+
+      if (found) {
+        if (found.status === "blocked") {
+          setError("Sua conta está bloqueada. Entre em contato com o suporte.");
+          return;
+        }
+        onLogin(found as AuthUser);
+        navigate(found.role === "store" ? "/adega" : found.role === "delivery" ? "/entregador" : "/");
+        return;
+      }
+
+      // Contas demo
       if (form.email === DEMO_ACCOUNTS.customer.email) {
         onLogin(DEMO_ACCOUNTS.customer as AuthUser);
         navigate("/");
         return;
       }
-      setError("E-mail ou senha inválidos. Use: cliente@demo.com");
+      if (form.email === DEMO_ACCOUNTS.store.email) {
+        onLogin(DEMO_ACCOUNTS.store as AuthUser);
+        navigate("/adega");
+        return;
+      }
+      if (form.email === DEMO_ACCOUNTS.driver.email) {
+        onLogin(DEMO_ACCOUNTS.driver as AuthUser);
+        navigate("/entregador");
+        return;
+      }
+      setError("E-mail não encontrado. Faça seu cadastro.");
       return;
     }
 
-    // Register: create new user based on type
-    const newUser: AuthUser = {
+    // ========= CADASTRO =========
+    const existing: any[] = JSON.parse(localStorage.getItem("bebeuja_registered_users") || "[]");
+    if (existing.find((u: any) => u.email === form.email)) {
+      setError("Este e-mail já está cadastrado.");
+      return;
+    }
+
+    const newUser = {
       id: `${userType}-${Date.now()}`,
       name: form.name,
       email: form.email,
@@ -67,29 +92,53 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
       businessHours: form.businessHours,
       documentFileName: uploadedFile ? uploadedFile.name : null,
       documentPreview: uploadPreview || null,
-    } as AuthUser;
-    
-    // Salvar documento no localStorage (versão demo)
+      status: "pending",
+      createdAt: new Date().toISOString(),
+      // Campos específicos de adega
+      ...(userType === "store" && {
+        storeName: form.name,
+        description: "",
+        logo: "",
+        coverImage: "",
+        rating: 0,
+        reviewCount: 0,
+        deliveryTime: "30-50 min",
+        deliveryFee: 5.90,
+        minimumOrder: 30,
+        neighborhood: "",
+        city: "",
+        isOpen: false,
+        openingHours: "10:00",
+        closingHours: "22:00",
+        categories: [],
+        featured: false,
+      }),
+      ...(userType === "delivery" && {
+        isOnline: false,
+        rating: 0,
+        completedDeliveries: 0,
+      }),
+    };
+
+    // Persistir cadastro
+    localStorage.setItem("bebeuja_registered_users", JSON.stringify([...existing, newUser]));
+
+    // Salvar arquivo de documento
     if (uploadedFile) {
       localStorage.setItem(`document_${form.email}`, uploadedFile.name);
-      localStorage.setItem(`document_preview_${form.email}`, uploadPreview);
+      if (uploadPreview) localStorage.setItem(`document_preview_${form.email}`, uploadPreview);
     }
-    
-    onLogin(newUser);
-    navigate("/");
+
+    onLogin(newUser as AuthUser);
+    navigate(userType === "store" ? "/adega" : userType === "delivery" ? "/entregador" : "/");
   };
 
-  // Função para retornar o label do documento baseado no tipo
   const getDocumentLabel = () => {
-    switch(userType) {
-      case "customer":
-        return "Documento de identidade (RG/CNH) para verificação de idade";
-      case "delivery":
-        return "CNH (obrigatório para entrega)";
-      case "store":
-        return "CNPJ e Alvará de funcionamento";
-      default:
-        return "Documento";
+    switch (userType) {
+      case "customer": return "Documento de identidade (RG/CNH) para verificação de idade";
+      case "delivery": return "CNH (obrigatório para entrega)";
+      case "store": return "CNPJ e Alvará de funcionamento";
+      default: return "Documento";
     }
   };
 
@@ -97,7 +146,7 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
     <main className="min-h-screen flex flex-col items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
         <Link to="/" className="flex items-center gap-2 text-tx-secondary hover:text-tx-primary mb-8 transition-colors">
-          <ArrowLeft className="w-4 h-4" />Voltar para Home
+          <ArrowLeft className="w-4 h-4" /> Voltar para Home
         </Link>
 
         {/* Logo */}
@@ -112,12 +161,9 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
         {/* Tabs */}
         <div className="flex bg-surface-elevated rounded-xl p-1 mb-6 border border-surface-border">
           {(["login", "register"] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
+            <button key={t} onClick={() => setTab(t)}
               className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all
-                ${tab === t ? "bg-brand-green text-surface shadow-sm" : "text-tx-muted hover:text-tx-primary"}`}
-            >
+                ${tab === t ? "bg-brand-green text-surface shadow-sm" : "text-tx-muted hover:text-tx-primary"}`}>
               {t === "login" ? "Entrar" : "Cadastrar"}
             </button>
           ))}
@@ -126,14 +172,11 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
         <form onSubmit={handleSubmit} className="card p-6 space-y-4">
           {tab === "register" && (
             <>
-              {/* Tipo de usuário */}
               <div>
                 <label className="text-sm text-tx-secondary block mb-1.5">Você é:</label>
-                <select 
-                  value={userType} 
+                <select value={userType}
                   onChange={(e) => setUserType(e.target.value as "customer" | "delivery" | "store")}
-                  className="input-field"
-                >
+                  className="input-field">
                   <option value="customer">Cliente</option>
                   <option value="delivery">Entregador / Motoboy</option>
                   <option value="store">Adega (Estabelecimento)</option>
@@ -150,30 +193,18 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
                 <input type="tel" value={form.phone} onChange={set("phone")} className="input-field" placeholder="(11) 99999-9999" />
               </div>
 
-              {/* Upload de documento para TODOS os tipos */}
               <div>
                 <label className="text-sm text-tx-secondary block mb-1.5">{getDocumentLabel()}</label>
-                <input 
-                  type="file" 
-                  accept="image/*,application/pdf" 
-                  onChange={handleFileUpload} 
-                  className="input-field" 
-                  required 
-                />
+                <input type="file" accept="image/*,application/pdf" onChange={handleFileUpload} className="input-field" required />
                 {uploadPreview && (
-                  <div className="mt-2">
-                    <img src={uploadPreview} alt="Preview do documento" className="w-20 h-20 object-cover rounded border border-surface-border" />
-                  </div>
+                  <img src={uploadPreview} alt="Preview" className="w-20 h-20 object-cover rounded border border-surface-border mt-2" />
                 )}
-                {uploadedFile && (
-                  <p className="text-xs text-tx-muted mt-1">Arquivo: {uploadedFile.name}</p>
-                )}
+                {uploadedFile && <p className="text-xs text-tx-muted mt-1">📎 {uploadedFile.name}</p>}
                 {userType === "customer" && (
-                  <p className="text-xs text-brand-yellow mt-1">⚠️ Documento obrigatório para verificação de maioridade</p>
+                  <p className="text-xs text-brand-yellow mt-1">⚠️ Obrigatório para verificação de maioridade</p>
                 )}
               </div>
 
-              {/* Campos específicos por tipo */}
               {userType === "delivery" && (
                 <>
                   <div>
@@ -195,16 +226,14 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
                   </div>
                   <div>
                     <label className="text-sm text-tx-secondary block mb-1.5">Horário de funcionamento</label>
-                    <input type="text" value={form.businessHours} onChange={set("businessHours")} className="input-field" placeholder="Seg-Sex: 10h-22h, Sáb: 12h-20h" />
+                    <input type="text" value={form.businessHours} onChange={set("businessHours")} className="input-field" placeholder="10h - 22h" />
                   </div>
                 </>
               )}
 
-              {/* Para cliente, apenas o documento já foi pedido acima */}
               {userType === "customer" && (
                 <div className="bg-brand-green/10 border border-brand-green/30 rounded-lg p-3 text-xs text-tx-secondary">
-                  <p>📋 Verificação de idade:</p>
-                  <p className="mt-1">Enviamos seu documento para análise. Após aprovado, você poderá fazer pedidos.</p>
+                  <p>📋 <strong>Verificação de idade:</strong> Seu documento será analisado. Após aprovação, você poderá fazer pedidos.</p>
                 </div>
               )}
             </>
@@ -218,14 +247,8 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
           <div>
             <label className="text-sm text-tx-secondary block mb-1.5">Senha</label>
             <div className="relative">
-              <input
-                type={showPass ? "text" : "password"}
-                required
-                value={form.password}
-                onChange={set("password")}
-                className="input-field pr-10"
-                placeholder="••••••••"
-              />
+              <input type={showPass ? "text" : "password"} required value={form.password}
+                onChange={set("password")} className="input-field pr-10" placeholder="••••••••" />
               <button type="button" onClick={() => setShowPass(!showPass)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-tx-muted hover:text-tx-primary transition-colors">
                 {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -246,13 +269,16 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
 
         {/* Demo credentials */}
         <div className="card p-4 mt-4 border-brand-green/20">
-          <p className="text-xs text-tx-muted font-medium mb-2">🔑 Acesso Demo</p>
-          <div className="space-y-1 text-xs text-tx-secondary">
+          <p className="text-xs text-tx-muted font-medium mb-2">🔑 Acessos de Demonstração</p>
+          <div className="space-y-1.5 text-xs text-tx-secondary">
             <p>👤 Cliente: <span className="text-brand-green">cliente@demo.com</span></p>
-            <p>🏪 Adega: <Link to="/adega/entrar" className="text-brand-yellow hover:underline">Acesse o painel da adega</Link></p>
-            <p>🛵 Entregador: <Link to="/entregador" className="text-orange-400 hover:underline">Acesse o painel do motoboy</Link></p>
+            <p>🏪 Adega: <Link to="/adega" className="text-brand-yellow hover:underline">Painel da adega</Link> — <span className="text-brand-yellow">adega@demo.com</span></p>
+            <p>🛵 Entregador: <Link to="/entregador" className="text-orange-400 hover:underline">Painel do motoboy</Link> — <span className="text-orange-400">motoboy@demo.com</span></p>
+            <p>🔐 Admin: <Link to="/admin" className="text-brand-red hover:underline">Painel administrativo</Link></p>
           </div>
-          <p className="text-xs text-tx-muted mt-2">Qualquer senha funciona</p>
+          <p className="text-xs text-tx-muted mt-2 border-t border-surface-border pt-2">
+            Admin: <span className="text-brand-red">admin@bebeuja.com</span> / <span className="text-brand-red">admin123</span>
+          </p>
         </div>
       </div>
     </main>

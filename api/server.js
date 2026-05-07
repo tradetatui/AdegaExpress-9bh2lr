@@ -7,6 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// 🔥 MySQL (EasyPanel)
 const db = mysql.createConnection({
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
@@ -19,13 +20,15 @@ db.connect((err) => {
     console.log('Erro MySQL:', err.message);
     return;
   }
-  console.log('MySQL conectado!');
+  console.log('🔥 MySQL conectado!');
 });
 
+// TESTE
 app.get('/', (req, res) => {
-  res.json({ status: 'API rodando' });
+  res.json({ status: 'API rodando 🚀' });
 });
 
+// LISTAR STORES
 app.get('/api/stores', (req, res) => {
   db.query('SELECT * FROM stores ORDER BY id DESC', (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -33,6 +36,7 @@ app.get('/api/stores', (req, res) => {
   });
 });
 
+// CRIAR STORE
 app.post('/api/stores', (req, res) => {
   const { store_name, description, phone, email, city } = req.body;
 
@@ -47,8 +51,9 @@ app.post('/api/stores', (req, res) => {
   });
 });
 
+// PORTA (IMPORTANTE PARA EASY PANEL)
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`API rodando na porta ${PORT}`);
+  console.log(`🚀 API rodando na porta ${PORT}`);
 });

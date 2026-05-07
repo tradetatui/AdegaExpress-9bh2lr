@@ -83,6 +83,12 @@ export default function Header({ user, cartCount = 0, onCartClick, onLogout }: H
                       Meus Pedidos
                     </Link>
                   )}
+                  {(user as any).role === "admin" && (
+                    <Link to="/admin" onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-brand-red hover:bg-brand-red/10 transition-colors">
+                      🔐 Painel Admin
+                    </Link>
+                  )}
                   <button
                     onClick={handleLogout}
                     className="flex items-center gap-2 px-4 py-2 text-sm text-brand-red hover:bg-brand-red/10 transition-colors w-full text-left"

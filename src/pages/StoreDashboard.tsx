@@ -34,10 +34,14 @@ export default function StoreDashboard({ user, onLogin, onLogout }: StoreDashboa
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [loginError, setLoginError] = useState("");
 
-  // Products state (mock CRUD)
-  const [products, setProducts] = useState<Product[]>(() =>
-    MOCK_PRODUCTS.filter((p) => p.storeId === "store-1")
-  );
+  const [products, setProducts] = useState<Product[]>(() => {
+    if (!storeUser) return [];
+    const stored = localStorage.getItem(`bebeuja_products_${storeUser.id}`);
+    if (stored) {
+      try { return JSON.parse(stored); } catch {}
+    }
+    return MOCK_PRODUCTS.filter((p) => p.storeId === "store-1");
+  });
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [showProductForm, setShowProductForm] = useState(false);
   const [productForm, setProductForm] = useState({
@@ -120,15 +124,22 @@ export default function StoreDashboard({ user, onLogin, onLogout }: StoreDashboa
       image: productForm.image || `https://images.unsplash.com/photo-1608270586620-248524c67de9?w=400&h=400&fit=crop&random=${Date.now()}`,
       available: true, featured: false,
     };
+    let updated: Product[];
     if (editingProduct) {
-      setProducts((prev) => prev.map((p) => p.id === editingProduct.id ? { ...p, ...base } : p));
+      updated = products.map((p) => p.id === editingProduct.id ? { ...p, ...base } : p);
     } else {
-      setProducts((prev) => [...prev, { ...base, id: `p-${Date.now()}`, storeId: storeUser.id }]);
+      updated = [...products, { ...base, id: `p-${Date.now()}`, storeId: storeUser!.id }];
     }
+    setProducts(updated);
+    localStorage.setItem(`bebeuja_products_${storeUser!.id}`, JSON.stringify(updated));
     setShowProductForm(false);
   };
 
-  const deleteProduct = (id: string) => setProducts((prev) => prev.filter((p) => p.id !== id));
+  const deleteProduct = (id: string) => {
+    const updated = products.filter((p) => p.id !== id);
+    setProducts(updated);
+    localStorage.setItem(`bebeuja_products_${storeUser!.id}`, JSON.stringify(updated));
+  };
 
   const TABS = [
     { id: "overview", label: "Visão Geral", icon: LayoutDashboard },
