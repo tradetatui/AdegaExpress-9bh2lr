@@ -23,7 +23,7 @@ db.connect((err) => {
 
 // ========== ROTAS DA API ==========
 
-// 1. LISTAR todas as lojas (já existia)
+// 1. LISTAR todas as lojas
 app.get('/api/stores', (req, res) => {
   db.query('SELECT * FROM stores ORDER BY id DESC', (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -31,7 +31,7 @@ app.get('/api/stores', (req, res) => {
   });
 });
 
-// 2. BUSCAR UMA LOJA POR ID (ROTA QUE ESTAVA FALTANDO!)
+// 2. BUSCAR UMA LOJA POR ID
 app.get('/api/stores/:id', (req, res) => {
   const { id } = req.params;
   
@@ -46,7 +46,7 @@ app.get('/api/stores/:id', (req, res) => {
   });
 });
 
-// 3. CRIAR nova loja (já existia)
+// 3. CRIAR nova loja
 app.post('/api/stores', (req, res) => {
   const { store_name, description, phone, email, city } = req.body;
 
