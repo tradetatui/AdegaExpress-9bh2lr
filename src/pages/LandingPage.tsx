@@ -1,41 +1,75 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Search, Zap, Shield, Star } from "lucide-react";
 import StoreCard from "@/components/features/StoreCard";
-import { MOCK_STORES, CATEGORIES } from "@/constants/mockData";
+import { CATEGORIES } from "@/constants/mockData";
 import heroBanner from "@/assets/hero-banner.jpg";
 import catBeer from "@/assets/category-beer.jpg";
 import catWhisky from "@/assets/category-whisky.jpg";
 import catEnergy from "@/assets/category-energy.jpg";
 
-const CATEGORY_IMAGES: Record<string, string> = {
-  cerveja: catBeer,
-  whisky: catWhisky,
-  energetico: catEnergy,
-};
-
 export default function LandingPage() {
   const [search, setSearch] = useState("");
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState(null);
+  const [stores, setStores] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/stores')
+      .then(res => res.json())
+      .then(data => {
+        const mappedStores = data.map(store => ({
+          id: store.id,
+          storeName: store.store_name,
+          description: store.description,
+          phone: store.phone,
+          email: store.email,
+          city: store.city,
+          address: store.address,
+          coverImage: store.cover_image || "https://placehold.co/400x200?text=Loja",
+          logo: store.logo || "https://placehold.co/100x100?text=Logo",
+          categories: store.categories ? store.categories.split(',') : [],
+          isOpen: store.is_open === 1,
+          deliveryFee: parseFloat(store.delivery_fee),
+          minimumOrder: parseFloat(store.minimum_order),
+          rating: parseFloat(store.rating),
+          reviewCount: store.review_count,
+          deliveryTime: "30-40 min",
+          neighborhood: store.city,
+          featured: false
+        }));
+        setStores(mappedStores);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Erro:', err);
+        setLoading(false);
+      });
+  }, []);
 
   const filtered = useMemo(() => {
-    let stores = MOCK_STORES;
-    
+    let filteredStores = stores;
     if (activeCategory) {
-      stores = stores.filter((store) => 
-        store.categories?.includes(activeCategory)
-      );
+      filteredStores = filteredStores.filter(s => s.categories?.includes(activeCategory));
     }
-    
     if (search.trim()) {
       const q = search.toLowerCase();
-      stores = stores.filter((store) =>
-        store.storeName?.toLowerCase().includes(q) || 
-        store.neighborhood?.toLowerCase().includes(q)
+      filteredStores = filteredStores.filter(s =>
+        s.storeName?.toLowerCase().includes(q) || s.city?.toLowerCase().includes(q)
       );
     }
-    
-    return stores;
-  }, [search, activeCategory]);
+    return filteredStores;
+  }, [search, activeCategory, stores]);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-brand-green border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-tx-secondary">Carregando adegas...</p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen">
@@ -55,8 +89,6 @@ export default function LandingPage() {
             <p className="text-tx-secondary mt-3 md:text-lg">
               As melhores adegas da cidade com entrega rápida.
             </p>
-
-            {/* Search bar */}
             <div className="relative mt-6 max-w-md">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-tx-muted" />
               <input
@@ -87,7 +119,7 @@ export default function LandingPage() {
           ))}
         </div>
 
-        {/* Categories */}
+        {/* Categories - BOTÕES DE CATEGORIA */}
         <section className="py-6">
           <h2 className="font-display font-bold text-lg mb-4">Categorias</h2>
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
@@ -115,7 +147,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Featured category cards */}
+        {/* Featured category cards - GRADE "MAIS PEDIDOS" */}
         {!activeCategory && !search && (
           <section className="mb-8">
             <h2 className="font-display font-bold text-lg mb-4">Mais Pedidos</h2>
@@ -141,7 +173,7 @@ export default function LandingPage() {
           </section>
         )}
 
-        {/* Stores */}
+        {/* Stores - GRADE DE LOJAS */}
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-display font-bold text-lg">
