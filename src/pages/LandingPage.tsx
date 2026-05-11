@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { Search, Zap, Shield, Star } from "lucide-react";
 import StoreCard from "@/components/features/StoreCard";
-import { CATEGORIES } from "@/constants/mockData";
+import { CATEGORIES, MOCK_STORES as MOCK_STORES_FALLBACK } from "@/constants/mockData";
 import heroBanner from "@/assets/hero-banner.jpg";
 import catBeer from "@/assets/category-beer.jpg";
 import catWhisky from "@/assets/category-whisky.jpg";
@@ -14,10 +14,11 @@ export default function LandingPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Tenta carregar lojas da API
     fetch('/api/stores')
       .then(res => res.json())
       .then(data => {
-        const mappedStores = data.map(store => ({
+        const mappedStores = data.map((store: any) => ({
           id: store.id,
           storeName: store.store_name,
           description: store.description,
@@ -37,14 +38,71 @@ export default function LandingPage() {
           neighborhood: store.city,
           featured: false
         }));
-        setStores(mappedStores);
+        setStores(mergeWithLocalProfiles(mappedStores));
         setLoading(false);
       })
-      .catch(err => {
-        console.error('Erro:', err);
+      .catch(() => {
+        // Fallback: dados mock + lojas registradas no localStorage
+        const registeredUsers: any[] = JSON.parse(localStorage.getItem("bebeuja_registered_users") ?? "[]");
+        const registeredStores = registeredUsers
+          .filter(u => u.role === "store")
+          .map(u => {
+            const savedProfile = (() => {
+              const p = localStorage.getItem(`bebeuja_store_profile_${u.id}`);
+              if (p) { try { return JSON.parse(p); } catch {} }
+              return {};
+            })();
+            const merged = { ...u, ...savedProfile };
+            return {
+              id: merged.id,
+              storeName: merged.storeName || merged.name,
+              description: merged.description || "",
+              email: merged.email,
+              phone: merged.phone || "",
+              city: merged.city || "",
+              neighborhood: merged.neighborhood || "",
+              coverImage: merged.coverImage || "https://images.unsplash.com/photo-1436076863939-06870fe779c2?w=800&h=300&fit=crop",
+              logo: merged.logo || "",
+              categories: merged.categories || [],
+              isOpen: merged.isOpen ?? false,
+              deliveryFee: parseFloat(merged.deliveryFee ?? "5.90"),
+              minimumOrder: parseFloat(merged.minimumOrder ?? "30"),
+              rating: merged.rating ?? 0,
+              reviewCount: merged.reviewCount ?? 0,
+              deliveryTime: "30-50 min",
+              featured: false,
+            };
+          });
+        const allStores = [...MOCK_STORES_FALLBACK, ...registeredStores];
+        setStores(mergeWithLocalProfiles(allStores));
         setLoading(false);
       });
   }, []);
+
+  // Mescla perfis salvos do localStorage sobre os dados das lojas
+  const mergeWithLocalProfiles = (storeList: any[]) => {
+    return storeList.map(s => {
+      const savedProfile = (() => {
+        const p = localStorage.getItem(`bebeuja_store_profile_${s.id}`);
+        if (p) { try { return JSON.parse(p); } catch {} }
+        return null;
+      })();
+      if (!savedProfile) return s;
+      return {
+        ...s,
+        storeName: savedProfile.storeName || s.storeName,
+        description: savedProfile.description || s.description,
+        city: savedProfile.city || s.city,
+        neighborhood: savedProfile.neighborhood || s.neighborhood,
+        coverImage: savedProfile.coverImage || s.coverImage,
+        logo: savedProfile.logo || s.logo,
+        categories: savedProfile.categories?.length ? savedProfile.categories : s.categories,
+        isOpen: savedProfile.isOpen ?? s.isOpen,
+        deliveryFee: parseFloat(savedProfile.deliveryFee ?? String(s.deliveryFee)),
+        minimumOrder: parseFloat(savedProfile.minimumOrder ?? String(s.minimumOrder)),
+      };
+    });
+  };
 
   const filtered = useMemo(() => {
     let filteredStores = stores;

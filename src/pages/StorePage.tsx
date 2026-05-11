@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Star, Clock, Bike, ShoppingCart, Info } from "lucide-react";
 import ProductCard from "@/components/features/ProductCard";
@@ -17,8 +17,51 @@ export default function StorePage({ cartItems, onAddToCart, onRemoveFromCart, on
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-  const store = MOCK_STORES.find((s) => s.id === id);
-  const allProducts = MOCK_PRODUCTS.filter((p) => p.storeId === id);
+  const mockStore = MOCK_STORES.find((s) => s.id === id);
+
+  // Merge perfil salvo pelo dono da adega (localStorage) sobre os dados mock
+  const [storeProfile, setStoreProfile] = useState<any>(null);
+  useEffect(() => {
+    if (!id) return;
+    // Tenta perfil salvo via StoreDashboard
+    const saved = localStorage.getItem(`bebeuja_store_profile_${id}`);
+    if (saved) {
+      try { setStoreProfile(JSON.parse(saved)); } catch {}
+    }
+    // Tambem verifica usuários registrados (adegas cadastradas)
+    const users: any[] = JSON.parse(localStorage.getItem("bebeuja_registered_users") ?? "[]");
+    const registeredStore = users.find((u) => u.id === id && u.role === "store");
+    if (registeredStore) {
+      setStoreProfile((prev: any) => ({ ...registeredStore, ...(prev ?? {}) }));
+    }
+  }, [id]);
+
+  const store = mockStore
+    ? { ...mockStore, ...(storeProfile ?? {}) }
+    : storeProfile
+      ? {
+          ...storeProfile,
+          id: id!,
+          isOpen: storeProfile.isOpen ?? false,
+          deliveryFee: parseFloat(storeProfile.deliveryFee ?? "5.90"),
+          minimumOrder: parseFloat(storeProfile.minimumOrder ?? "30"),
+          rating: storeProfile.rating ?? 0,
+          reviewCount: storeProfile.reviewCount ?? 0,
+          openingHours: storeProfile.openingHours ?? "10:00",
+          closingHours: storeProfile.closingHours ?? "22:00",
+        }
+      : null;
+
+  // Produtos: do localStorage se adega registrada, senão mock
+  const storedProducts = (() => {
+    if (!id) return [];
+    const lsProducts = localStorage.getItem(`bebeuja_products_${id}`);
+    if (lsProducts) { try { return JSON.parse(lsProducts); } catch {} }
+    return [];
+  })();
+  const allProducts = storedProducts.length > 0
+    ? storedProducts
+    : MOCK_PRODUCTS.filter((p) => p.storeId === id);
 
   if (!store) {
     return (
