@@ -90,7 +90,7 @@ export default function StorePage({ cartItems, onAddToCart, onRemoveFromCart, on
       {/* Cover */}
       <div className="relative h-52 md:h-72 overflow-hidden">
         <img src={store.coverImage} alt={store.storeName} className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-b from-surface/40 to-surface/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/80" />
 
         <button
           onClick={() => navigate(-1)}
@@ -162,7 +162,7 @@ export default function StorePage({ cartItems, onAddToCart, onRemoveFromCart, on
           <button
             onClick={() => setActiveCategory(null)}
             className={`shrink-0 px-4 py-2 rounded-xl text-sm font-medium border transition-all
-              ${!activeCategory ? "bg-brand-green text-surface border-brand-green" : "bg-surface-elevated text-tx-secondary border-surface-border hover:border-brand-green/40"}`}
+              ${!activeCategory ? "bg-brand-green text-white border-brand-green" : "bg-surface-elevated text-tx-secondary border-surface-border hover:border-brand-green/40"}`}
           >
             Todos
           </button>
@@ -173,7 +173,7 @@ export default function StorePage({ cartItems, onAddToCart, onRemoveFromCart, on
                 key={cat}
                 onClick={() => setActiveCategory(activeCategory === cat ? null : cat)}
                 className={`shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium border transition-all
-                  ${activeCategory === cat ? "bg-brand-green text-surface border-brand-green" : "bg-surface-elevated text-tx-secondary border-surface-border hover:border-brand-green/40"}`}
+                  ${activeCategory === cat ? "bg-brand-green text-white border-brand-green" : "bg-surface-elevated text-tx-secondary border-surface-border hover:border-brand-green/40"}`}
               >
                 {meta?.emoji} {meta?.label ?? cat}
               </button>

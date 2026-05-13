@@ -11,23 +11,25 @@ export default {
       },
       colors: {
         brand: {
-          green: "#00D97E",
-          "green-dim": "#00A861",
-          yellow: "#F5C518",
+          green: "#F97316",
+          "green-dim": "#EA6C0A",
+          yellow: "#F59E0B",
           red: "#EF4444",
           "red-dim": "#DC2626",
+          orange: "#F97316",
+          "orange-dim": "#EA6C0A",
         },
         surface: {
-          DEFAULT: "#0A0A0A",
-          card: "#111111",
-          elevated: "#1A1A1A",
-          border: "#2A2A2A",
-          "border-subtle": "#1E1E1E",
+          DEFAULT: "#FFFFFF",
+          card: "#FFFFFF",
+          elevated: "#F8F7F4",
+          border: "#E5E7EB",
+          "border-subtle": "#F3F4F6",
         },
         tx: {
-          primary: "#F9FAFB",
-          secondary: "#9CA3AF",
-          muted: "#4B5563",
+          primary: "#111827",
+          secondary: "#6B7280",
+          muted: "#9CA3AF",
         },
       },
       borderRadius: {
@@ -42,8 +44,8 @@ export default {
       },
       keyframes: {
         pulseGreen: {
-          "0%, 100%": { boxShadow: "0 0 0 0 rgba(0,217,126,0.4)" },
-          "50%": { boxShadow: "0 0 0 8px rgba(0,217,126,0)" },
+          "0%, 100%": { boxShadow: "0 0 0 0 rgba(249,115,22,0.4)" },
+          "50%": { boxShadow: "0 0 0 8px rgba(249,115,22,0)" },
         },
         slideUp: {
           from: { opacity: "0", transform: "translateY(10px)" },

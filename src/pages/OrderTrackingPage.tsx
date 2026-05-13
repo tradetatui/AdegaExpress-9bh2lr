@@ -85,7 +85,7 @@ export default function OrderTrackingPage() {
               return (
                 <div key={step.status} className="flex items-center gap-3">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all
-                    ${isDone ? "bg-brand-green text-surface" : "bg-surface-elevated text-tx-muted border border-surface-border"}
+                    ${isDone ? "bg-brand-green text-white" : "bg-surface-elevated text-tx-muted border border-surface-border"}
                     ${isCurrent ? "ring-2 ring-brand-green/40" : ""}`}>
                     <StepIcon className="w-4 h-4" />
                   </div>

@@ -134,7 +134,7 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="relative h-72 md:h-96 overflow-hidden">
         <img src={heroBanner} alt="BebeuJá" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-r from-surface/95 via-surface/70 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/60 to-transparent" />
         <div className="absolute inset-0 flex flex-col justify-center px-6 md:px-12 max-w-7xl mx-auto">
           <div className="max-w-lg">
             <p className="text-brand-green text-sm font-semibold tracking-widest uppercase mb-2">
@@ -185,7 +185,7 @@ export default function LandingPage() {
               onClick={() => setActiveCategory(null)}
               className={`shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border transition-all
                 ${!activeCategory
-                  ? "bg-brand-green text-surface border-brand-green"
+                  ? "bg-brand-green text-white border-brand-green"
                   : "bg-surface-elevated text-tx-secondary border-surface-border hover:border-brand-green/40"}`}
             >
               🍾 Todos
@@ -196,7 +196,7 @@ export default function LandingPage() {
                 onClick={() => setActiveCategory(activeCategory === cat.id ? null : cat.id)}
                 className={`shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border transition-all
                   ${activeCategory === cat.id
-                    ? "bg-brand-green text-surface border-brand-green"
+                    ? "bg-brand-green text-white border-brand-green"
                     : "bg-surface-elevated text-tx-secondary border-surface-border hover:border-brand-green/40"}`}
               >
                 {cat.emoji} {cat.label}
@@ -221,8 +221,8 @@ export default function LandingPage() {
                   className="relative h-28 rounded-2xl overflow-hidden group"
                 >
                   <img src={item.img} alt={item.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-surface/80 to-transparent" />
-                  <span className="absolute bottom-2 left-0 right-0 text-center text-sm font-semibold text-tx-primary">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                  <span className="absolute bottom-2 left-0 right-0 text-center text-sm font-semibold text-white">
                     {item.label}
                   </span>
                 </button>

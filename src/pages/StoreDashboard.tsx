@@ -393,7 +393,7 @@ export default function StoreDashboard({ user, onLogin, onLogout }: StoreDashboa
                             <button onClick={() => handleRefuse(order.id)} className="flex items-center gap-1 text-xs border border-brand-red/40 text-brand-red px-3 py-1.5 rounded-lg hover:bg-brand-red/10 transition-colors">
                               <X className="w-3 h-3" /> Recusar
                             </button>
-                            <button onClick={() => handleAccept(order.id)} className="flex items-center gap-1 text-xs bg-brand-green text-surface px-3 py-1.5 rounded-lg font-semibold">
+                            <button onClick={() => handleAccept(order.id)} className="flex items-center gap-1 text-xs bg-brand-green text-white px-3 py-1.5 rounded-lg font-semibold">
                               <Check className="w-3 h-3" /> Aceitar
                             </button>
                           </>
@@ -514,8 +514,8 @@ export default function StoreDashboard({ user, onLogin, onLogout }: StoreDashboa
                         <p className="text-xs text-tx-muted">Clique para enviar foto de capa</p>
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-surface/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="text-xs text-brand-green font-medium flex items-center gap-1">
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <span className="text-xs text-white font-medium flex items-center gap-1">
                         <Upload className="w-3.5 h-3.5" /> Alterar capa
                       </span>
                     </div>
@@ -546,8 +546,8 @@ export default function StoreDashboard({ user, onLogin, onLogout }: StoreDashboa
                           <Store className="w-8 h-8 text-tx-muted" />
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-surface/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <Camera className="w-4 h-4 text-brand-green" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Camera className="w-4 h-4 text-white" />
                       </div>
                     </div>
                     <div className="flex-1">
@@ -626,7 +626,7 @@ export default function StoreDashboard({ user, onLogin, onLogout }: StoreDashboa
                         onClick={() => toggleCategory(cat.id)}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all
                           ${active
-                            ? "bg-brand-green text-surface border-brand-green"
+                            ? "bg-brand-green text-white border-brand-green"
                             : "bg-surface-elevated text-tx-secondary border-surface-border hover:border-brand-green/40"}`}
                       >
                         {cat.emoji} {cat.label}

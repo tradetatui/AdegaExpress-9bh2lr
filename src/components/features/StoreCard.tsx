@@ -20,7 +20,7 @@ export default function StoreCard({ store }: StoreCardProps) {
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-surface-card/90 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
 
         {/* Status badge */}
         <div className={`absolute top-3 left-3 tag border font-semibold text-xs

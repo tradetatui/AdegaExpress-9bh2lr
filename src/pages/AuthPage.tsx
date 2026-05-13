@@ -163,7 +163,7 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
           {(["login", "register"] as const).map((t) => (
             <button key={t} onClick={() => setTab(t)}
               className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all
-                ${tab === t ? "bg-brand-green text-surface shadow-sm" : "text-tx-muted hover:text-tx-primary"}`}>
+                ${tab === t ? "bg-brand-green text-white shadow-sm" : "text-tx-muted hover:text-tx-primary"}`}>
               {t === "login" ? "Entrar" : "Cadastrar"}
             </button>
           ))}

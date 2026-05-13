@@ -26,7 +26,7 @@ export default function Header({ user, cartCount = 0, onCartClick, onLogout }: H
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 shrink-0">
           <div className="w-8 h-8 bg-brand-green rounded-lg flex items-center justify-center">
-            <span className="text-surface font-display font-bold text-sm">BJ</span>
+            <span className="text-white font-display font-bold text-sm">BJ</span>
           </div>
           <span className="font-display font-bold text-lg text-tx-primary hidden sm:block">
             Bebeu<span className="neon-text">Já</span>

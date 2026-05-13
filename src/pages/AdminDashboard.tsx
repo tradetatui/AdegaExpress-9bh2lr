@@ -260,7 +260,7 @@ export default function AdminDashboard({ user, onLogin, onLogout }: AdminDashboa
                 <Icon className="w-4 h-4" />
                 {t.label}
                 {(t as any).badge > 0 && (
-                  <span className="ml-auto w-5 h-5 bg-brand-yellow text-surface text-xs rounded-full flex items-center justify-center font-bold">
+                  <span className="ml-auto w-5 h-5 bg-brand-yellow text-white text-xs rounded-full flex items-center justify-center font-bold">
                     {(t as any).badge}
                   </span>
                 )}
@@ -281,7 +281,7 @@ export default function AdminDashboard({ user, onLogin, onLogout }: AdminDashboa
                   <Icon className="w-5 h-5" />
                   <span className="hidden sm:block">{t.label}</span>
                   {(t as any).badge > 0 && (
-                    <span className="absolute top-1 right-1/4 w-4 h-4 bg-brand-yellow text-surface text-[10px] rounded-full flex items-center justify-center font-bold">
+                    <span className="absolute top-1 right-1/4 w-4 h-4 bg-brand-yellow text-white text-[10px] rounded-full flex items-center justify-center font-bold">
                       {(t as any).badge}
                     </span>
                   )}
@@ -486,7 +486,7 @@ export default function AdminDashboard({ user, onLogin, onLogout }: AdminDashboa
                     <div className="flex gap-2 mt-3 flex-wrap">
                       {u.status === "pending" && (
                         <button onClick={() => approveUser(u.id)}
-                          className="flex items-center gap-1.5 text-xs bg-brand-green text-surface px-3 py-1.5 rounded-lg font-semibold hover:bg-brand-green-dim transition-colors">
+                          className="flex items-center gap-1.5 text-xs bg-brand-green text-white px-3 py-1.5 rounded-lg font-semibold hover:bg-brand-green-dim transition-colors">
                           <Check className="w-3.5 h-3.5" /> Aprovar
                         </button>
                       )}
@@ -549,7 +549,7 @@ export default function AdminDashboard({ user, onLogin, onLogout }: AdminDashboa
                     <div className="flex gap-2 mt-3">
                       {u.status === "pending" && (
                         <button onClick={() => approveUser(u.id)}
-                          className="flex items-center gap-1.5 text-xs bg-brand-green text-surface px-3 py-1.5 rounded-lg font-semibold">
+                          className="flex items-center gap-1.5 text-xs bg-brand-green text-white px-3 py-1.5 rounded-lg font-semibold">
                           <Check className="w-3.5 h-3.5" /> Aprovar
                         </button>
                       )}

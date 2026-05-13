@@ -40,7 +40,7 @@ export default function CartDrawer({
       )}
 
       {/* Drawer */}
-      <div className={`fixed right-0 top-0 h-full w-full max-w-sm bg-surface-card border-l border-surface-border z-50
+      <div className={`fixed right-0 top-0 h-full w-full max-w-sm bg-white border-l border-surface-border z-50
         transform transition-transform duration-300 ease-out flex flex-col
         ${isOpen ? "translate-x-0" : "translate-x-full"}`}>
 
